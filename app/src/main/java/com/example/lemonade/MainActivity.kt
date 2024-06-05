@@ -32,6 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.lemonade.ui.theme.LemonadeTheme
+import kotlin.random.Random
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,6 +56,14 @@ fun Greeting(modifier: Modifier = Modifier) {
     var result by remember {
         mutableStateOf(1)
     }
+    var clicksNeeded by remember { mutableStateOf(1) }
+    var clickCount by remember { mutableStateOf(0) }
+
+    // Generate random clicks needed when result is 2
+    if (result == 2 && clicksNeeded == 1) {
+        clicksNeeded = Random.nextInt(2, 5)
+    }
+
     val imageResourse = when (result) {
         1 -> R.drawable.lemon_tree
         2 -> R.drawable.lemon_squeeze
@@ -76,15 +85,25 @@ fun Greeting(modifier: Modifier = Modifier) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .size(200.dp) // Size of the background square
+                .size(200.dp)
                 .background(
                     color = Color(0xFFD1EEC6),
                     shape = RoundedCornerShape(16.dp)
-                ) // Light green color with rounded corners
-                .padding(16.dp) // Padding inside the background box
+                )
+                .padding(16.dp)
                 .clickable {
-                    // Update the state variables when the image is clicked
-                    result = (result % 4) + 1
+                    if (result == 2) {
+                        clickCount++
+                        if (clickCount >= clicksNeeded) {
+                            result = 3
+                            clicksNeeded = 1
+                            clickCount = 0
+                        }
+                    } else {
+                        result = (result % 4) + 1
+                        clicksNeeded = 1
+                        clickCount = 0
+                    }
                 }
         ) {
             Image(
